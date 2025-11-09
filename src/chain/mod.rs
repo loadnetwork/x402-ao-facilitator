@@ -12,6 +12,7 @@ use crate::types::{
 pub mod evm;
 pub mod solana;
 
+// todo: add ao.TN.1
 pub enum NetworkProvider {
     Evm(EvmProvider),
     Solana(SolanaProvider),
@@ -34,7 +35,8 @@ impl FromEnvByNetworkBuild for NetworkProvider {
             NetworkFamily::Solana => {
                 let provider = SolanaProvider::from_env(network).await?;
                 provider.map(NetworkProvider::Solana)
-            }
+            },
+            NetworkFamily::Ao => todo!()
         };
         Ok(provider)
     }

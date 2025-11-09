@@ -51,6 +51,9 @@ pub enum Network {
     /// Sei testnet (chain ID 1328).
     #[serde(rename = "sei-testnet")]
     SeiTestnet,
+    /// AO (ao.TN.1)
+    #[serde(rename = "ao")]
+    Ao
 }
 
 impl Display for Network {
@@ -67,6 +70,7 @@ impl Display for Network {
             Network::Polygon => write!(f, "polygon"),
             Network::Sei => write!(f, "sei"),
             Network::SeiTestnet => write!(f, "sei-testnet"),
+            Network::Ao => write!(f, "ao"),
         }
     }
 }
@@ -75,6 +79,7 @@ impl Display for Network {
 pub enum NetworkFamily {
     Evm,
     Solana,
+    Ao
 }
 
 impl From<Network> for NetworkFamily {
@@ -91,6 +96,7 @@ impl From<Network> for NetworkFamily {
             Network::Polygon => NetworkFamily::Evm,
             Network::Sei => NetworkFamily::Evm,
             Network::SeiTestnet => NetworkFamily::Evm,
+            Network::Ao => NetworkFamily::Ao
         }
     }
 }
@@ -110,6 +116,7 @@ impl Network {
             Network::Polygon,
             Network::Sei,
             Network::SeiTestnet,
+            Network::Ao,
         ]
     }
 }
@@ -322,6 +329,7 @@ impl USDCDeployment {
             Network::Polygon => &USDC_POLYGON,
             Network::Sei => &USDC_SEI,
             Network::SeiTestnet => &USDC_SEI_TESTNET,
+            Network::Ao => todo!()
         }
     }
 }

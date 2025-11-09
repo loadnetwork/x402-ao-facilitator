@@ -11,6 +11,7 @@ use crate::types::{
 
 pub mod evm;
 pub mod solana;
+pub mod ao;
 
 // todo: add ao.TN.1
 pub enum NetworkProvider {

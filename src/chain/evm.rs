@@ -134,7 +134,7 @@ impl TryFrom<Network> for EvmChain {
             Network::Polygon => Ok(EvmChain::new(value, 137)),
             Network::Sei => Ok(EvmChain::new(value, 1329)),
             Network::SeiTestnet => Ok(EvmChain::new(value, 1328)),
-            Network::Ao => Err(FacilitatorLocalError::UnsupportedNetwork(None))
+            Network::Ao => Err(FacilitatorLocalError::UnsupportedNetwork(None)),
         }
     }
 }
@@ -210,7 +210,10 @@ impl EvmProvider {
             GasFiller,
             JoinFill::new(
                 BlobGasFiller,
-                JoinFill::new(NonceFiller::new(nonce_manager.clone()), ChainIdFiller::default()),
+                JoinFill::new(
+                    NonceFiller::new(nonce_manager.clone()),
+                    ChainIdFiller::default(),
+                ),
             ),
         );
 
@@ -357,7 +360,7 @@ impl MetaEvmProvider for EvmProvider {
             std::env::var("TX_RECEIPT_TIMEOUT_SECS")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(30)
+                .unwrap_or(30),
         );
 
         let watcher = pending_tx
@@ -410,7 +413,7 @@ impl FromEnvByNetworkBuild for EvmProvider {
             Network::Polygon => true,
             Network::Sei => true,
             Network::SeiTestnet => true,
-            Network::Ao => false
+            Network::Ao => false,
         };
         let provider = EvmProvider::try_new(wallet, &rpc_url, is_eip1559, network).await?;
         Ok(Some(provider))
@@ -889,7 +892,7 @@ async fn assert_valid_payment<P: Provider>(
 ) -> Result<(USDC::USDCInstance<P>, ExactEvmPayment, Eip712Domain), FacilitatorLocalError> {
     let payment_payload = match &payload.payload {
         ExactPaymentPayload::Evm(payload) => payload,
-        ExactPaymentPayload::Solana(_) => {
+        _ => {
             return Err(FacilitatorLocalError::UnsupportedNetwork(None));
         }
     };

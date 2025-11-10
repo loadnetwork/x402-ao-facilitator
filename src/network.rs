@@ -53,7 +53,7 @@ pub enum Network {
     SeiTestnet,
     /// AO (ao.TN.1)
     #[serde(rename = "ao")]
-    Ao
+    Ao,
 }
 
 impl Display for Network {
@@ -79,7 +79,7 @@ impl Display for Network {
 pub enum NetworkFamily {
     Evm,
     Solana,
-    Ao
+    Ao,
 }
 
 impl From<Network> for NetworkFamily {
@@ -96,7 +96,7 @@ impl From<Network> for NetworkFamily {
             Network::Polygon => NetworkFamily::Evm,
             Network::Sei => NetworkFamily::Evm,
             Network::SeiTestnet => NetworkFamily::Evm,
-            Network::Ao => NetworkFamily::Ao
+            Network::Ao => NetworkFamily::Ao,
         }
     }
 }
@@ -282,11 +282,12 @@ static USDC_SEI_TESTNET: Lazy<USDCDeployment> = Lazy::new(|| {
     })
 });
 
-
 static AO_TN1: Lazy<USDCDeployment> = Lazy::new(|| {
     USDCDeployment(TokenDeployment {
         asset: TokenAsset {
-            address: MixedAddress::Offchain("0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc".to_string()),
+            address: MixedAddress::Offchain(
+                "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc".to_string(),
+            ),
             network: Network::Ao,
         },
         decimals: 12,
@@ -341,7 +342,7 @@ impl USDCDeployment {
             Network::Polygon => &USDC_POLYGON,
             Network::Sei => &USDC_SEI,
             Network::SeiTestnet => &USDC_SEI_TESTNET,
-            Network::Ao => &AO_TN1
+            Network::Ao => &AO_TN1,
         }
     }
 }

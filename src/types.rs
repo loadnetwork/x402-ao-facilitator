@@ -26,7 +26,7 @@ use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::str::FromStr;
 use url::Url;
 
-use crate::network::Network;
+use crate::network::{Network, NetworkFamily};
 use crate::timestamp::UnixTimestamp;
 
 /// Represents the protocol version. Currently only version 1 is supported.
@@ -282,21 +282,60 @@ pub struct ExactSolanaPayload {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExactAoPayload {
+    pub transaction: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ExactPaymentPayload {
     Evm(ExactEvmPayload),
     Solana(ExactSolanaPayload),
+    Ao(ExactAoPayload),
 }
 
 /// Describes a signed request to transfer a specific amount of funds on-chain.
 /// Includes the scheme, network, and signed payload contents.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaymentPayload {
     pub x402_version: X402Version,
     pub scheme: Scheme,
     pub network: Network,
     pub payload: ExactPaymentPayload,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PaymentPayloadIntermediate {
+    x402_version: X402Version,
+    scheme: Scheme,
+    network: Network,
+    payload: serde_json::Value,
+}
+
+impl<'de> Deserialize<'de> for PaymentPayload {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let intermediate = PaymentPayloadIntermediate::deserialize(deserializer)?;
+        let payload = match NetworkFamily::from(intermediate.network) {
+            NetworkFamily::Evm => serde_json::from_value(intermediate.payload)
+                .map(ExactPaymentPayload::Evm)
+                .map_err(serde::de::Error::custom)?,
+            NetworkFamily::Solana => serde_json::from_value(intermediate.payload)
+                .map(ExactPaymentPayload::Solana)
+                .map_err(serde::de::Error::custom)?,
+            NetworkFamily::Ao => serde_json::from_value(intermediate.payload)
+                .map(ExactPaymentPayload::Ao)
+                .map_err(serde::de::Error::custom)?,
+        };
+        Ok(PaymentPayload {
+            x402_version: intermediate.x402_version,
+            scheme: intermediate.scheme,
+            network: intermediate.network,
+            payload,
+        })
+    }
 }
 
 /// Error returned when decoding a base64-encoded [`PaymentPayload`] fails.
@@ -727,11 +766,6 @@ impl<'de> Deserialize<'de> for MixedAddress {
     where
         D: Deserializer<'de>,
     {
-        static OFFCHAIN_ADDRESS_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$")
-                .expect("Invalid regex for offchain address")
-        });
-
         let s = String::deserialize(deserializer)?;
         // 1) EVM address (e.g., 0x... 20 bytes, hex)
         if let Ok(addr) = EvmAddress::from_str(&s) {
@@ -741,11 +775,8 @@ impl<'de> Deserialize<'de> for MixedAddress {
         if let Ok(pk) = Pubkey::from_str(&s) {
             return Ok(MixedAddress::Solana(pk));
         }
-        // 3) Off-chain address by regex
-        if OFFCHAIN_ADDRESS_REGEX.is_match(&s) {
-            return Ok(MixedAddress::Offchain(s));
-        }
-        Err(serde::de::Error::custom("Invalid address format"))
+        // 3) Fallback to arbitrary off-chain address
+        Ok(MixedAddress::Offchain(s))
     }
 }
 
@@ -767,6 +798,8 @@ pub enum TransactionHash {
     /// A 32-byte EVM transaction hash, encoded as 0x-prefixed hex string.
     Evm([u8; 32]),
     Solana([u8; 64]),
+    /// Offchain transaction/reference identifier (e.g., AO message id).
+    Offchain(String),
 }
 
 impl<'de> Deserialize<'de> for TransactionHash {
@@ -794,7 +827,8 @@ impl<'de> Deserialize<'de> for TransactionHash {
             return Ok(TransactionHash::Solana(array));
         }
 
-        Err(serde::de::Error::custom("Invalid transaction hash format"))
+        // Fallback to offchain identifier (AO message IDs, etc.).
+        Ok(TransactionHash::Offchain(s))
     }
 }
 
@@ -809,6 +843,7 @@ impl Serialize for TransactionHash {
                 let b58_string = bs58::encode(bytes).into_string();
                 serializer.serialize_str(&b58_string)
             }
+            TransactionHash::Offchain(value) => serializer.serialize_str(value),
         }
     }
 }
@@ -822,6 +857,7 @@ impl Display for TransactionHash {
             TransactionHash::Solana(bytes) => {
                 write!(f, "{}", bs58::encode(bytes).into_string())
             }
+            TransactionHash::Offchain(value) => write!(f, "{value}"),
         }
     }
 }
@@ -1172,7 +1208,7 @@ pub enum MoneyAmountParseError {
 mod money_amount {
     use super::*;
 
-    pub const MIN_STR: &str = "0.000000001";
+    pub const MIN_STR: &str = "0.000000000001";
     pub const MAX_STR: &str = "999999999";
 
     pub static MIN: Lazy<Decimal> =

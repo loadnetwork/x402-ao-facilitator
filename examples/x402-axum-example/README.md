@@ -1,3 +1,35 @@
+# x402-ao-facilitator example
+
+This repository comes with a tailored axum example that works with the ao network ($AO as payment token). the changes made to [main.rs](./src/main.rs) are:
+
+* fallback to our hosted facilitator if the ENV doesn't set the local facilitator (running at port 8080)
+* creates a PriceBuilderTag set to pay the `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` address:
+
+```rust
+    let ao_token = USDCDeployment::by_network(Network::Ao).pay_to(MixedAddress::Offchain(
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".to_string(),
+    ));
+```
+* the route `/protected-route` is protected with a cost of `0.000000000001` $AO
+* it's required to have a wallet JWK saved in the `./wallet.json` file location (gitignored - use burner!!) in order to complete the test flow (required balance >= 0.000000000001 AO)
+
+## Run the test
+
+In order to GET the `/protected-route` and pay to access its gated content, you need to:
+* run the axum server binaries: `cargo run --bin x402-axum-example`
+* run the script that automates accessing the protected endpoint and handles the payment creation and submission: `cargo run --bin ao_payment_helper`
+
+Expected result:
+
+```bash
+status=200 OK body=This is a VIP content!
+```
+
+onchain proof: https://www.ao.link/#/message/_zrmkURCLrHOKWzsErmFTEdXzcUEur1iWGErepju3w0
+
+
+
+
 # x402-axum-example
 
 An example Axum server demonstrating how to protect routes using the [`x402-axum`](https://crates.io/crates/x402-axum) crate

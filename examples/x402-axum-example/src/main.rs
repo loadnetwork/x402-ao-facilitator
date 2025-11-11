@@ -24,7 +24,7 @@ async fn main() {
         .register();
 
     let facilitator_url =
-        env::var("FACILITATOR_URL").unwrap_or_else(|_| "http://localhost:8080".to_string());
+        env::var("FACILITATOR_URL").unwrap_or_else(|_| "https://hyper-x402.load.network".to_string()); // http://localhost:8080
 
     let x402 = X402Middleware::try_from(facilitator_url)
         .unwrap()

@@ -18,6 +18,7 @@ use crate::types::{
 pub const AO_TOKEN_ADDRESS: &str = "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc";
 pub const USDA_TOKEN_ADDRESS: &str = "FBt9A5GA_KXMMSxA2DJ0xZbAq8sLLU2ak-YJe9zDvg8";
 pub const ARIO_TOKEN_ADDRESS: &str = "qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE";
+pub const PIXL_TOKEN_ADDRESS: &str = "DM3FoZUq_yebASPhgd8pEIRIzDW6muXEhxz5-JwbZwo";
 
 const AO_VARIANT: &str = "ao.TN.1";
 const REQUIRED_STATIC_TAGS: &[(&str, &str)] = &[

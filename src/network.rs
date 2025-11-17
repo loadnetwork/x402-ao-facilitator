@@ -3,7 +3,9 @@
 //! This module defines supported networks and their chain IDs,
 //! and provides statically known USDC deployments per network.
 
-use crate::chain::ao::{AO_TOKEN_ADDRESS, ARIO_TOKEN_ADDRESS, USDA_TOKEN_ADDRESS};
+use crate::chain::ao::{
+    AO_TOKEN_ADDRESS, ARIO_TOKEN_ADDRESS, PIXL_TOKEN_ADDRESS, USDA_TOKEN_ADDRESS,
+};
 use crate::types::{MixedAddress, TokenAsset, TokenDeployment, TokenDeploymentEip712};
 use alloy::primitives::address;
 use once_cell::sync::Lazy;
@@ -318,6 +320,19 @@ static AO_ARIO: Lazy<USDCDeployment> = Lazy::new({
     }
 });
 
+static AO_PIXL: Lazy<USDCDeployment> = Lazy::new({
+    || {
+        USDCDeployment(TokenDeployment {
+            asset: TokenAsset {
+                address: MixedAddress::Offchain(PIXL_TOKEN_ADDRESS.to_string()),
+                network: Network::Ao,
+            },
+            decimals: 6,
+            eip712: None,
+        })
+    }
+});
+
 /// A known USDC deployment as a wrapper around [`TokenDeployment`].
 #[derive(Clone, Debug)]
 pub struct USDCDeployment(pub TokenDeployment);
@@ -374,6 +389,7 @@ impl USDCDeployment {
             "AO" => &AO_TN1,
             "USDA" => &AO_USDA,
             "ARIO" => &AO_ARIO,
+            "PIXL" => &AO_PIXL,
             _ => &AO_TN1,
         }
     }

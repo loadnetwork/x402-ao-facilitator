@@ -15,6 +15,10 @@ use crate::types::{
     TransactionHash, VerifyRequest, VerifyResponse, X402Version,
 };
 
+pub const AO_TOKEN_ADDRESS: &str = "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc";
+pub const USDA_TOKEN_ADDRESS: &str = "FBt9A5GA_KXMMSxA2DJ0xZbAq8sLLU2ak-YJe9zDvg8";
+pub const ARIO_TOKEN_ADDRESS: &str = "qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE";
+
 const AO_VARIANT: &str = "ao.TN.1";
 const REQUIRED_STATIC_TAGS: &[(&str, &str)] = &[
     ("Action", "Transfer"),

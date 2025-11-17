@@ -3,6 +3,7 @@
 //! This module defines supported networks and their chain IDs,
 //! and provides statically known USDC deployments per network.
 
+use crate::chain::ao::{AO_TOKEN_ADDRESS, ARIO_TOKEN_ADDRESS, USDA_TOKEN_ADDRESS};
 use crate::types::{MixedAddress, TokenAsset, TokenDeployment, TokenDeploymentEip712};
 use alloy::primitives::address;
 use once_cell::sync::Lazy;
@@ -285,9 +286,7 @@ static USDC_SEI_TESTNET: Lazy<USDCDeployment> = Lazy::new(|| {
 static AO_TN1: Lazy<USDCDeployment> = Lazy::new(|| {
     USDCDeployment(TokenDeployment {
         asset: TokenAsset {
-            address: MixedAddress::Offchain(
-                "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc".to_string(),
-            ),
+            address: MixedAddress::Offchain(AO_TOKEN_ADDRESS.to_string()),
             network: Network::Ao,
         },
         decimals: 12,
@@ -298,9 +297,7 @@ static AO_TN1: Lazy<USDCDeployment> = Lazy::new(|| {
 static AO_USDA: Lazy<USDCDeployment> = Lazy::new(|| {
     USDCDeployment(TokenDeployment {
         asset: TokenAsset {
-            address: MixedAddress::Offchain(
-                "FBt9A5GA_KXMMSxA2DJ0xZbAq8sLLU2ak-YJe9zDvg8".to_string(),
-            ),
+            address: MixedAddress::Offchain(USDA_TOKEN_ADDRESS.to_string()),
             network: Network::Ao,
         },
         decimals: 12,
@@ -312,9 +309,7 @@ static AO_ARIO: Lazy<USDCDeployment> = Lazy::new({
     || {
         USDCDeployment(TokenDeployment {
             asset: TokenAsset {
-                address: MixedAddress::Offchain(
-                    "qNvAoz0TgcH7DMg8BCVn8jF32QH5L6T29VjHxhHqqGE".to_string(),
-                ),
+                address: MixedAddress::Offchain(ARIO_TOKEN_ADDRESS.to_string()),
                 network: Network::Ao,
             },
             decimals: 6,

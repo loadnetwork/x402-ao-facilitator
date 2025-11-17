@@ -18,6 +18,7 @@ use serde_json::json;
 use tracing::instrument;
 
 use crate::chain::FacilitatorLocalError;
+use crate::chain::ao::{AO_TOKEN_ADDRESS, ARIO_TOKEN_ADDRESS, USDA_TOKEN_ADDRESS};
 use crate::facilitator::Facilitator;
 use crate::types::{
     ErrorResponse, FacilitatorErrorReason, MixedAddress, SettleRequest, VerifyRequest,
@@ -76,8 +77,13 @@ where
 /// `GET /`: Returns a simple greeting message from the facilitator.
 #[instrument(skip_all)]
 pub async fn get_root() -> impl IntoResponse {
-    let pkg_name = env!("CARGO_PKG_NAME");
-    (StatusCode::OK, format!("Hello from {pkg_name}!"))
+    let pkg_version = env!("CARGO_PKG_VERSION");
+    (
+        StatusCode::OK,
+        Json(
+            json!({"version": pkg_version, "supported_ao_tokens": {"ao": AO_TOKEN_ADDRESS.to_string(), "ario": ARIO_TOKEN_ADDRESS.to_string(), "usda": USDA_TOKEN_ADDRESS.to_string()}, "endpoint": "https://hyper-x402.load.network"}),
+        ),
+    )
 }
 
 /// `GET /supported`: Lists the x402 payment schemes and networks supported by this facilitator.
